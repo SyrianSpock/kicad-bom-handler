@@ -20,9 +20,9 @@ def cmp_extract_info(component):
 
     return reference, value, footprint
 
-def remove_duplicate(table_in):
-    'Remove duplicates in the table'
-    table_out = [[],[],[]]
+def rearrange_table(table_in):
+    'Remove duplicates in the table and adds parts count'
+    table_out = [[],[],[],[]]
     table = zip(*table_in)  # Flip table
 
     for item in table_in:
@@ -30,11 +30,13 @@ def remove_duplicate(table_in):
         if(item[1] in table_out[1] and item[2] in table_out[2]):
             cmp_index = table_out[1].index(item[1])
             table_out[0][cmp_index] += ' %s' % item[0]
+            table_out[3][cmp_index] = str(int(table_out[3][cmp_index]) + 1)
         # Else add the component
         else:
             table_out[0].append(item[0])
             table_out[1].append(item[1])
             table_out[2].append(item[2])
+            table_out[3].append('1')
 
     table_out = zip(*table_out)
     return table_out
@@ -64,10 +66,11 @@ def main():
         if(reference != '' and value != ''):
             cmp_table.append([reference, value, footprint])
 
-    cmp_table = remove_duplicate(cmp_table)
-    f_out.write('Reference,Value,Kicad Footprint\n')
+    cmp_table = rearrange_table(cmp_table)
+    f_out.write('Reference,Value,Quantity,Kicad Footprint,URL\n')
     for component in cmp_table:
-        description = '%s,%s,%s\n' % (component[0],component[1],component[2])
+        description = '%s,%s,%s,%s,\n' \
+                      % (component[0],component[1],component[3],component[2])
         f_out.write(description)
 
 if __name__ == "__main__":
